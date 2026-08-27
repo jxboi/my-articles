@@ -1,1 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rowan Hale — Essays on Software</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340..640;1,9..144,340..640&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf7f2;
+    --ink:#1a1714;
+    --muted:#6e6558;
+    --line:#e3dcd0;
+    --line-strong:#c9bfae;
+    --accent:#b4441c;
+    --ghost:#efeae1;
+    --serif:"Fraunces",Georgia,serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  html[data-theme="dark"]{
+    --bg:#161310;
+    --ink:#ece5d8;
+    --muted:#96897a;
+    --line:#2c261f;
+    --line-strong:#42392e;
+    --accent:#e06b3c;
+    --ghost:#211c16;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-optical-sizing:auto;
+    -webkit-font-smoothing:antialiased;
+    transition:background .35s ease,color .35s ease;
+  }
+  ::selection{background:var(--accent);color:var(--bg)}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- shared bits ---------- */
+  .mono{
+    font-family:var(--mono);
+    font-size:.72rem;
+    letter-spacing:.08em;
+  }
+  .label{
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .wrap{max-width:46rem;margin:0 auto;padding:0 1.5rem}
+
+  /* ---------- top bar ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar{
+    max-width:60rem;margin:0 auto;
+    padding:.85rem 1.5rem;
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  }
+  .wordmark{display:flex;align-items:baseline;gap:.6rem}
+  .wordmark strong{font-weight:600;font-size:1.05rem;font-variation-settings:"opsz" 30}
+  .wordmark span{font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  nav{display:flex;align-items:center;gap:1.4rem}
+  nav a.link,.theme-btn{
+    font-family:var(--mono);font-size:.74rem;color:var(--ink);
+    background:none;border:none;cursor:pointer;padding:.15rem 0;
+    position:relative;letter-spacing:.04em;
+  }
+  nav a.link::after,.theme-btn::after{
+    content:"";position:absolute;left:0;bottom:-2px;height:1px;width:100%;
+    background:var(--accent);transform:scaleX(0);transform-origin:right;
+    transition:transform .28s ease;
+  }
+  nav a.link:hover::after,.theme-btn:hover::after{transform:scaleX(1);transform-origin:left}
+  .theme-btn svg{width:15px;height:15px;display:block;stroke:currentColor;fill:none;stroke-width:1.6;vertical-align:middle}
+
+  /* ---------- hero ---------- */
+  .hero{padding:4.2rem 0 3rem;border-bottom:2px solid var(--ink)}
+  html[data-theme="dark"] .hero{border-color:var(--ink)}
+  .hero .kicker{margin-bottom:1.6rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+  h1{
+    font-weight:420;
+    font-variation-settings:"opsz" 144;
+    font-size:clamp(2.6rem,7.5vw,4.6rem);
+    line-height:1.02;
+    letter-spacing:-.015em;
+  }
+  h1 em{font-style:italic;font-variation-settings:"opsz" 144;color:var(--accent)}
+  .hero-meta{
+    margin-top:2.2rem;display:flex;justify-content:space-between;align-items:flex-end;
+    gap:1.5rem;flex-wrap:wrap;color:var(--muted)
+  }
+  .hero-meta p{font-size:.95rem;line-height:1.55;max-width:26rem}
+  .stat{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-align:right;line-height:1.9}
+  .stat b{font-weight:500;color:var(--ink)}
+
+  /* ---------- sections ---------- */
+  section{padding:3rem 0;border-bottom:1px solid var(--line)}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.8rem}
+
+  /* latest */
+  .latest-title{
+    font-size:clamp(1.5rem,3.6vw,2.15rem);
+    font-weight:480;line-height:1.18;letter-spacing:-.01em;
+    display:inline;transition:color .2s;
+  }
+  .latest-link:hover .latest-title{color:var(--accent)}
+  .latest-blurb{margin-top:.8rem;color:var(--muted);font-size:.98rem;line-height:1.6;max-width:34rem}
+  .latest-date{color:var(--muted)}
+  .arrow-nudge{display:inline-block;margin-left:.4rem;font-family:var(--mono);transition:transform .25s}
+  .latest-link:hover .arrow-nudge{transform:translate(3px,-3px)}
+
+  /* filters */
+  .filters{display:flex;flex-wrap:wrap;gap:.35rem 1.1rem;margin-bottom:2.2rem}
+  .filter-btn{
+    font-family:var(--mono);font-size:.73rem;letter-spacing:.05em;
+    color:var(--muted);background:none;border:none;cursor:pointer;padding:.2rem 0;
+    transition:color .2s;
+  }
+  .filter-btn:hover{color:var(--ink)}
+  .filter-btn[aria-pressed="true"]{color:var(--accent);border-bottom:1px solid var(--accent)}
+
+  /* index */
+  .year{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--muted);
+    padding-bottom:.7rem;border-bottom:1px solid var(--line-strong);margin-bottom:.2rem;
+  }
+  .group{margin-bottom:2.6rem}
+  .entry{border-bottom:1px solid var(--line)}
+  .entry-head{
+    width:100%;text-align:left;background:none;border:none;cursor:pointer;
+    display:grid;grid-template-columns:auto 1fr auto;gap:1.1rem;align-items:baseline;
+    padding:1.15rem .4rem;color:inherit;font:inherit;position:relative;
+  }
+  .entry-head .num{font-family:var(--mono);font-size:.72rem;color:var(--muted);min-width:2.4rem}
+  .entry-head h3{
+    font-size:1.22rem;font-weight:500;line-height:1.25;letter-spacing:-.005em;
+    transition:color .2s;
+  }
+  .entry-head:hover h3{color:var(--accent)}
+  .entry-head .meta{font-family:var(--mono);font-size:.7rem;color:var(--muted);white-space:nowrap}
+  .chev{
+    position:absolute;right:.4rem;top:50%;translate:0 -50%;
+    font-family:var(--mono);font-size:.75rem;color:var(--muted);
+    transition:transform .3s ease;
+  }
+  .entry.open .chev{transform:rotate(90deg)}
+  .entry-body{
+    overflow:hidden;max-height:0;opacity:0;
+    transition:max-height .38s cubic-bezier(.4,0,.2,1),opacity .3s ease;
+  }
+  .entry.open .entry-body{opacity:1}
+  .entry-inner{
+    padding:.1rem .4rem 1.4rem calc(.4rem + 2.4rem + 1.1rem);
+    display:flex;flex-direction:column;gap:.9rem;
+  }
+  .entry-inner p{color:var(--muted);font-size:.95rem;line-height:1.65;max-width:36rem}
+  .entry-tags{display:flex;flex-wrap:wrap;gap:.4rem .9rem;align-items:center}
+  .tag{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+  .tag::before{content:"#";color:var(--accent);margin-right:.1em}
+  .read-more{
+    font-family:var(--mono);font-size:.73rem;color:var(--ink);
+    border-bottom:1px solid var(--line-strong);padding-bottom:2px;width:fit-content;
+    transition:border-color .2s,color .2s;
+  }
+  .read-more:hover{color:var(--accent);border-color:var(--accent)}
+
+  /* ghost numeral */
+  #ghost{
+    position:fixed;right:3vw;bottom:4vh;z-index:1;pointer-events:none;
+    font-variation-settings:"opsz" 144;font-weight:340;font-style:italic;
+    font-size:min(28vh,16rem);line-height:1;color:var(--ghost);
+    opacity:0;transition:opacity .35s ease;user-select:none;
+  }
+  #ghost.on{opacity:1}
+
+  /* about */
+  .about-grid{display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:start}
+  .about-grid p{font-size:1rem;line-height:1.7;max-width:34rem}
+  .about-grid p + p{margin-top:.9rem}
+  .contact{display:flex;flex-direction:column;gap:.75rem}
+  .contact a{
+    display:inline-flex;align-items:center;gap:.55rem;
+    font-family:var(--mono);font-size:.76rem;color:var(--ink);
+    transition:color .2s;
+  }
+  .contact a:hover{color:var(--accent)}
+  .contact svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+  /* footer */
+  footer{padding:2rem 0 2.6rem}
+  .foot{
+    display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+    font-family:var(--mono);font-size7rem;color:var(--muted);letter-spacing:.06em;
+  }
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  .in-stagger > .reveal{transition-delay:calc(var(--i,0) * 60ms)}
+
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+  @media (max-width:680px){
+    .entry-head{grid-template-columns:auto 1fr;padding-right:2rem}
+    .entry-head .meta{grid-column:2;white-space:normal}
+    .entry-inner{padding-left:.4rem}
+    .about-grid{grid-template-columns:1fr}
+    #ghost{display:none}
+    .stat{text-align:left}
+    nav a.hide-sm{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <!-- ✏️ EDIT: your name -->
+    <div class="wordmark"><strong>Rowan&nbsp;Hale</strong><span>/ essays</span></div>
+    <nav>
+      <a class="link hide-sm" href="#writing">index</a>
+      <a class="link hide-sm" href="#about">about</a>
+      <a class="link" href="https://github.com/your-username" target="_blank" rel="noopener">github</a>
+      <button class="theme-btn" id="themeToggle" aria-label="Toggle color scheme"></button>
+    </nav>
+  </div>
+</header>
+
+<div id="ghost" aria-hidden="true"></div>
+
+<div class="wrap">
+
+  <section class="hero reveal in">
+    <div class="kicker">
+      <span class="label">Technical journal</span>
+      <span class="label" id="estLabel"></span>
+    </div>
+    <h1>Essays on building<br><em>software</em> that lasts.</h1>
+    <div class="hero-meta">
+      <p>Long-form notes on systems programming, databases, and the web — written slowly, edited honestly, hosted from plain source on GitHub Pages.</p>
+      <div class="stat" id="stats"></div>
+    </div>
+  </section>
+
+  <section id="writing">
+    <div class="sec-head reveal">
+      <span class="label">Latest dispatch</span>
+      <span class="mono latest-date" id="latestDate"></span>
+    </div>
+    <a class="latest-link reveal" id="latestLink" href="#">
+      <span class="latest-title" id="latestTitle"></span><span class="arrow-nudge">&#8599;</span>
+    </a>
+    <p class="latest-blurb reveal" id="latestBlurb"></p>
+  </section>
+
+  <section>
+    <div class="sec-head reveal">
+      <span class="label">Index</span>
+      <span class="mono" id="countLabel" style="color:var(--muted)"></span>
+    </div>
+    <div class="filters reveal" id="filters" role="group" aria-label="Filter articles by topic"></div>
+    <div id="index"></div>
+    <p class="mono" id="emptyState" hidden style="padding:1.5rem .4rem;color:var(--muted)">
+      Nothing filed under this topic yet.
+    </p>
+  </section>
+
+  <section id="about">
+    <div class="sec-head reveal"><span class="label">Colophon</span></div>
+    <div class="about-grid reveal">
+      <div>
+        <p>I'm Rowan — a systems engineer who writes to understand things properly. Each piece here starts as working notes, survives a few rewrites, and ships only once I'd be willing to defend it in a code review.</p>
+        <p>Every article lives as a plain markdown file next to this page in the repository. No tracking, no framework churn — just text, versioned.</p>
+      </div>
+      <div class="contact">
+         href="https://github.com/your-username" target="_blank" rel="noopener" id="ghContact"></a>
+        <a href="mailto:hello@example.com" id="mailContact"></a>
+        <a href="#" onclick="return false" title="Point this at your feed.xml" aria-disabled="true"></a>
+        <a href="#" id="rssContact"><svg viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>rss feed</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot">
+      <span>&copy; <span id="year"></span> Rowan Hale</span>
+      <span>Set in Fraunces &amp; JetBrains Mono</span>
+      <span>local time <b id="clock" style="font-weight:500"></b></span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* ==========================================================
+   ✏️ EDIT HERE — this single array is your entire site.
+   When you publish an article, add a markdown file to the
+   repo at ./posts/<slug>.md and add an object below.
+   ========================================================== */
+const AUTHOR   = { github: "https://github.com/your-username", email: "hello@example.com" };
+const SITE_START_YEAR = 2023;
+
+const POSTS = [
+  {
+    slug: "zero-cost-abstractions-in-rust",
+    title: "Zero-Cost Abstractions, Measured",
+    blurb: "Rust promises abstraction without runtime cost — the promise is real, but the fine print matters.",
+    abstract: "Monomorphization, iterator fusion, and what the optimizer can and cannot see through. We take four layers of abstraction over a hot loop and read the assembly together to find out exactly where the promise holds, where it bends, and how to tell the difference before profiling.",
+    tags: ["rust", "systems"],
+    minutes: 12,
+    date: "2025-06-14"
+  },
+  {
+    slug: "building-a-toy-database",
+    title: "Building a Toy Database from Scratch",
+    blurb: "Pages, B-trees, and a write-ahead log — the smallest storage engine worth building.",
+    abstract: "We build a single-file key/value store in five hundred lines: slotted pages, a real B-tree with splits and merges, and a WAL that actually recovers after a crash mid-write. Not production-ready, but production-shaped.",
+    tags: ["databases", "systems"],
+    minutes: 24,
+    date: "2025-03-02"
+  },
+  {
+    slug: "hidden-cost-of-hydration",
+    title: "The Hidden Cost of Hydration",
+    blurb: "Shipping less JavaScript means more than a faster bundle — it changes what your app can do first.",
+    abstract: "Time-to-interactive is the metric everyone quotes, but hydration also costs memory, battery, and main-thread headroom. A look at partial patterns and resumability through benchmarks on real mid-range hardware.",
+    tags: ["web", "performance"],
+    minutes: 9,
+    date: "2024-11-18"
+  },
+  {
+    slug: "git-internals-objects-and-refs",
+    title: "Git Internals: Objects, Refs, and the Graph",
+    blurb: "Four object types explain nearly every Git operation you've ever had to look up.",
+    abstract: "Content-addressed blobs, annotated trees, commits as snapshots, and refs as mutable pointers. Once the model clicks, rebases and cherry-picks stop being incantations and become obvious graph edits.",
+    tags: ["tooling", "git"],
+    minutes: 15,
+    date: "2024-07-09"
+  },
+  {
+    slug: "rate-limiting-token-vs-leaky-bucket",
+    title: "Rate Limiting Done Right",
+    blurb: "Token buckets versus leaky buckets — and why your accidental global counter will ruin your weekend.",
+    abstract: "Two algorithms, two shapes of burst behavior, and the distributed case nobody budgets for until the pager goes off. Includes Redis-backed pseudocode that treats clock skew as a first-class problem.",
+    tags: ["backend", "distributed"],
+    minutes: 11,
+    date: "2024-02-21"
+  },
+  {
+    slug: "typescript-types-are-sets",
+    title: "TypeScript Types Are Just Sets",
+    blurb: "Union, intersection, never — everything falls out of one mental model.",
+    abstract: "Reading type signatures set-theoretically dissolves most confusion: narrowing is membership testing, assignability is subset checks, and `never`
+
+    tags: ["typescript", "web"],
+    minutes: 8,
+    date: "2023-10-05"
+  }
+];
+
+/* ==========================================================
+   Rendering — no need to touch anything below this line.
+   ========================================================== */
+const $  = s => document.querySelector(s);
+const fmtDate = iso => new Date(iso + "T12:00:00")
+  .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const sorted = [...POSTS].sort((a, b) => b.date.localeCompare(a.date));
+const latest = sorted[0];
+
+/* latest dispatch */
+$("#latestTitle").textContent = latest.title;
+$("#latestBlurb").textContent = latest.blurb;
+$("#latestDate").textContent  = fmtDate(latest.date);
+$("#latestLink").href = "posts/" + latest.slug; // ← adjust to your published article URLs
+
+/* hero stats + est label */
+const years = POSTS.length;
+const totalMin = POSTS.reduce((s, p) => s + p.minutes, 0);
+const startYear = Math.min(SITE_START_YEAR, ...POSTS.map(p => +p.date.slice(0, 4)));
+$("#stats").innerHTML =
+  `<b>${String(years).padStart(2, "0")}</b> essays<br>` +
+  `<b>Math.floor(totalMin/60)h{Math.floor(totalMin / 60)}hMath.floor(totalMin/60)h{totalMin % 60}m</b> of reading<br>` +
+  `<b>startYear–{startYear}–startYear–{new Date().getFullYear()}</b> in print`;
+$("#estLabel").textContent = "est. " + startYear;
+
+/* contact links */
+$("#ghContact").innerHTML =
+  `<svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3.1-.4 6.4-1.6 6.4-7A5.4 5.4 0 0 0 20 4.8 5 5 0 0 0 19.9 1s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.5 0C7.5.7 6.4 1 6.4 1A5 5 0 0 0 6.3 4.8 5.4 5.4 0 0 0 4.8 8.5c0 5.3 3.3 6.5 6.4 7a3.4 3.4 0 0 0-.9 2.6V22"/></svg>github`;
+$("#ghContact").href = AUTHOR.github;
+$("#mailContact").innerHTML =
+  `<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>email`;
+$("#mailContact").href = "mailto:" + AUTHOR.email;
+$("#rssContact").href = AUTHOR.github + "/feeds"; // ← point at your real RSS/Atom feed
+
+/* footer bits */
+$("#year").textContent = new Date().getFullYear();
+const clock = $("#clock");
+const tick = () => clock.textContent =
+  new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+tick(); setInterval(tick, 30_000);
+
+/* ---------- index: group by year, expandable entries ---------- */
+const indexEl = $("#index");
+const groups = {};
+sorted.forEach(p => (groups[p.date.slice(0, 4)] ??= []).push(p));
+Object.keys(groups).sort().reverse().forEach(year => {
+  const g = document.createElement("div");
+  g.className = "group";
+  g.dataset.year = year;
+  g.innerHTML = `<div class="year">${year}</div>`;
+  groups[year].forEach(p => {
+    const e = document.createElement("article");
+    e.className = "entry";
+    e.dataset.tags = p.tags.join(" ");
+    e.innerHTML = `
+      <button class="entry-head" aria-expanded="false">
+        <span class="num">String(p.date.slice(5,7))/{String(p.date.slice(5, 7))}/String(p.date.slice(5,7))/{p.date.slice(8, 10)}</span>
+        <h3>${p.title}</h3>
+        <span class="meta">${p.minutes} min</span>
+        <span class="chev" aria-hidden="true">&#8250;</span>
+      </button>
+      <div class="entry-body">
+        <div class="entry-inner">
+          <p>${p.abstract}</p>
+          <div class="entry-tags">
+            {p.tags.map(t => `<span class="tag">{t}</span>`).join("")}
+          </div>
+          <a class="read-more" href="posts/${p.slug}">read the essay &#8599;</a>
+        </div>
+      </div>`;
+    const head = e.querySelector(".entry-head");
+    const body = e.querySelector(".entry-body");
+    head.addEventListener("click", () => {
+      const open = e.classList.toggle("open");
+      head.setAttribute("aria-expanded", open);
+      body.style.maxHeight = open ? body.scrollHeight + "px" : "0";
+    });
+    g.appendChild(e);
+  });
+  indexEl.appendChild(g);
+});
+
+/* ---------- topic filters ---------- */
+const tags = [...new Set(POSTS.flatMap(p => p.tags))].sort();
+const filtersEl = $("#filters");
+const empty = $("#emptyState");
+const makeBtn = (label, val) => {
+  const b = document.createElement("button");
+  b.className = "filter-btn";
+  b.textContent = label;
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => {
+    const active = b.getAttribute("aria-pressed") === "true";
+    filtersEl.querySelectorAll(".filter-btn").forEach(x => x.setAttribute("aria-pressed", "false"));
+    if (!active) {
+      b.setAttribute("aria-pressed", "true");
+      applyFilter(val);
+    } else applyFilter(null);
+  });
+  return b;
+};
+filtersEl.appendChild(makeBtn("all", null));
+tags.forEach(t => filtersEl.appendChild(makeBtn(t, t)));
+
+function applyFilter(tag) {
+  let shown = 0;
+  document.querySelectorAll(".entry").forEach(e => {
+    const match = !tag || e.dataset.tags.split(" ").includes(tag);
+    e.style.display = match ? "" : "none";
+    if (match) shown++;
+  });
+  document.querySelectorAll(".group").forEach(g => {
+    const any = [...g.querySelectorAll(".entry")].some(e => e.style.display !== "none");
+    g.style.display = any ? "" : "none";
+    if (any && tag) g.querySelector(".year").textContent =
+      g.dataset.year + " — " + shown + " filed";
+    else g.querySelector(".year").textContent = g.dataset.year;
+  });
+  $("#countLabel").textContent = tag
+    ? `shown/{shown} /shown/{POSTS.length}`
+    : `${POSTS.length} essays`;
+  empty.hidden = shown !== 0;
+}
+$("#countLabel").textContent = POSTS.length + " essays";
+
+/* ---------- ghost numeral follows hover ---------- */
+const ghost = $("#ghost");
+document.querySelectorAll(".entry-head h3").forEach(h => {
+  h.closest(".entry-head").addEventListener("mouseenter", () => {
+    const yr = h.closest(".group").dataset.year;
+    ghost.textContent = yr.slice(2); // last two digits, editorial style
+    ghost.classList.add("on");
+  });
+  h.closest(".entry-head").addEventListener("mouseleave", () => ghost.classList.remove("on"));
+});
+
+/* ---------- theme toggle (respects system preference) ---------- */
+const toggle = $("#themeToggle");
+const SUN  = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>';
+function setTheme(mode) {
+  document.documentElement.dataset.theme = mode;
+  toggle.innerHTML = mode === "dark" ? SUN : MOON;
+  try { localStorage.setItem("theme", mode); } catch {}
+}
+const stored = (() => { try { return localStorage.getItem("theme"); } catch { return null; } })();
+setTheme(stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+toggle.addEventListener("click", () =>
+  setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
+
+/* ---------- scroll reveal ---------- */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll(".reveal:not(.in)").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
+
 
